@@ -50,8 +50,6 @@ BLACK = (0, 0, 0)
 moving_sound = pygame.mixer.Sound("Chess_move.wav")
 alert_sound = pygame.mixer.Sound("Chess_alert.wav")
 
-
-
 #The color of the dark squares is optional. Thus the user can change it.
 def draw_board(OPTIONAL):
     for i in range(8):
@@ -88,8 +86,6 @@ def describe_fields():
         i_rect.topleft = (0, (800 - (i * 100)))
         DISPLAY_SCREEN.blit(i_text, i_rect)
 
-
-
 '''
 The Game State Class will keep track of the location of each piece. A square without a piece on it is defined as a None
 square. This 2 dimensional grid allows an efficient way of checking the type of each piece and thus which moves can be
@@ -98,7 +94,6 @@ played in regards to the other pieces on the board. Careful: the row value is gi
 '''
 
 class GameState():
-
 
     def __init__(self):
         self.board = [
@@ -123,7 +118,6 @@ class GameState():
         self.CastleShortB = False
         self.CastleLongW = False
         self.CastleLongB = False
-
 
     def check_for_nonesquare(self, click, list):
         if len(list) == 1:
@@ -174,49 +168,30 @@ class GameState():
                     if self.board[i][j] == bk:
                         bking_coordinates = [j, i]
                         return bking_coordinates
-    '''
-    def get_valid_moves(self, white_king, black_king):
-        #Check if the possible moves lead to check
-        for i in range(8): #i for row
-            for j in range(8): #j for col
-                if self.board[i][j] is not None:
-                    #Generate all possible moves for white
-                    if self.board[i][j].color == "w":
-                        possible_moves_w = self.board[i][j].possible_moves((j, i), self.board)
-                        if [black_king[0],black_king[1]] in possible_moves_w:
-                            self.board[black_king[1]][black_king[0]].BlackInCheck = True
-                            alert_sound.play()
-
-                    # Generate all possible moves for black
-                    if self.board[i][j].color == "b":
-                        possible_moves_b = self.board[i][j].possible_moves((j, i), self.board)
-                        if [white_king[0], white_king[1]] in possible_moves_b:
-                            self.board[white_king[1]][white_king[0]].WhiteInCheck = True
-                            alert_sound.play()
-    '''
 
     def is_king_in_check(self):
-        #Check if the possible moves lead to check
         for i in range(8): #i for row
             for j in range(8): #j for col
                 if self.board[i][j] is not None:
-                    #Generate all possible moves for white
-                    if self.board[i][j].color == "w":
-                        possible_moves_w = self.board[i][j].possible_moves((j, i), self.board)
-                        if [self.black_king_start[0], self.black_king_start[1]] in possible_moves_w:
-                            self.board[self.black_king_start[1]][self.black_king_start[0]].BlackInCheck = True
-                        else:
-                            self.board[self.black_king_start[1]][self.black_king_start[0]].BlackInCheck = False
-
-                    # Generate all possible moves for black
+                    #Generate all possible moves for black
                     if self.board[i][j].color == "b":
                         possible_moves_b = self.board[i][j].possible_moves((j, i), self.board)
                         if [self.white_king_start[0], self.white_king_start[1]] in possible_moves_b:
-                            self.board[self.white_king_start[1]][self.white_king_start[0]].WhiteInCheck = True
+                            if self.board[self.white_king_start[1]][self.white_king_start[0]] is not None:
+                                self.board[self.white_king_start[1]][self.white_king_start[0]].WhiteInCheck = True
                         else:
-                            self.board[self.white_king_start[1]][self.white_king_start[0]].WhiteInCheck = False
+                            if self.board[self.white_king_start[1]][self.white_king_start[0]] is not None:
+                                self.board[self.white_king_start[1]][self.white_king_start[0]].WhiteInCheck = False
 
-
+                    # Generate all possible moves for white
+                    if self.board[i][j].color == "w":
+                        possible_moves_b = self.board[i][j].possible_moves((j, i), self.board)
+                        if [self.black_king_start[0], self.black_king_start[1]] in possible_moves_b:
+                            if self.board[self.black_king_start[1]][self.black_king_start[0]] is not None:
+                                self.board[self.black_king_start[1]][self.white_king_start[0]].BlackInCheck = True
+                        else:
+                            if self.board[self.black_king_start[1]][self.black_king_start[0]] is not None:
+                                self.board[self.black_king_start[1]][self.black_king_start[0]].BlackInCheck = False
 
     def white_in_check(self,wx,wy):
         surface = pygame.Surface((SQUARE, SQUARE))
@@ -231,7 +206,6 @@ class GameState():
         surface.set_alpha(80)
         surface.fill(pygame.Color("red"))
         DISPLAY_SCREEN.blit(surface, (bx * 100, by * 100))
-
 
     def check_for_castling(self):
         #Check for the white king
@@ -258,7 +232,6 @@ class GameState():
                         if self.board[j][1] is None and self.board[j][2] is None and self.board[j][3] is None:
                             self.CastleLongB = True
 
-
     '''
     The move_piece function will set the rules for moving a piece . It takes the two squares of the move (start and end) 
     and will execute the move by moving the piece. If the piece is moved, it will leave a None square behind. This is 
@@ -266,7 +239,6 @@ class GameState():
     '''
 
     def move_piece(self, move):
-
 
         if self.board[move.stSqRow][move.stSqCol] is not None and self.whiteToMove:
             #possible_moves generated from Piece Class at specific click location
@@ -276,7 +248,7 @@ class GameState():
             if self.board[move.stSqRow][move.stSqCol].color == "w":
                 #Check if either the king or rook has moved once, then castling is not possible anymore
                 if self.board[move.stSqRow][move.stSqCol] == wk:
-                    self.white_king_start = [move.endSqRow, move.endSqCol]
+                    self.white_king_start = [move.endSqCol, move.endSqRow]
                     if [move.endSqRow,move.endSqCol] != [7,6]:
                         self.CastleShortW = False
                         moving_sound.play()
@@ -290,6 +262,7 @@ class GameState():
                         if move.endSqRow == 0:
                             self.board[move.stSqRow][move.stSqCol] = None
                             self.board[0][move.endSqCol] = wq
+                            moving_sound.play()
                             self.whiteToMove = not self.whiteToMove
 
                 if self.board[move.endSqRow][move.endSqCol] is not None:
@@ -351,7 +324,7 @@ class GameState():
             if self.board[move.stSqRow][move.stSqCol].color == "b":
                 # Check if either the king or rook has moved once, then castling is not possible anymore
                 if self.board[move.stSqRow][move.stSqCol] == bk:
-                    self.black_king_start = [move.endSqRow, move.endSqCol]
+                    self.black_king_start = [move.endSqCol, move.endSqRow]
                     if [move.endSqRow, move.endSqCol] != [0, 6]:
                         self.CastleShortB = False
                         moving_sound.play()
@@ -364,6 +337,7 @@ class GameState():
                         if move.endSqRow == 7:
                             self.board[move.stSqRow][move.stSqCol] = None
                             self.board[7][move.endSqCol] = bq
+                            moving_sound.play()
                             self.whiteToMove =  True
 
                 if self.board[move.endSqRow][move.endSqCol] is not None:
@@ -413,11 +387,10 @@ class GameState():
                         self.move_list.append(move)
                         self.whiteToMove = True
 
-    "***"
+    #With inspirations from Eddie Sharick's video: Chess Engine in Python - Part 3 - Undo moves, start generating valid chess moves
     def return_move(self):
         if len(self.move_list) != 0:
             move = self.move_list.pop()
-
             self.board[move.stSqRow][move.stSqCol] = move.pieceMoved
             self.board[move.endSqRow][move.endSqCol] = move.pieceCaptured
             self.whiteToMove = not self.whiteToMove
@@ -447,14 +420,20 @@ class GameState():
         self.move_list = []
         self.whiteToMove = True
         self.white_king_start = [4, 7]
-        self.black_king_start = [0, 7]
+        self.black_king_start = [4, 0]
         self.inCheck = False
         self.inPin = False
+        self.GameOverW = False
+        self.GameOverB = False
+        self.CastleShortW = False
+        self.CastleShortB = False
+        self.CastleLongW = False
+        self.CastleLongB = False
 
     #Select each piece by clicking on it to show its possible moves, if it is that piece's turn
     def select(self, list, board):
 
-        if board[list[0][1]][list[0][0]] != None: #Careful: Row and col in self.board are board[row][col]
+        if board[list[0][1]][list[0][0]] is not None: #Careful: Row and col in self.board are board[row][col]
             if board[list[0][1]][list[0][0]].color == "w" and self.whiteToMove:
                 board[list[0][1]][list[0][0]].selected = True
                 board[list[0][1]][list[0][0]].select_piece(list[0])

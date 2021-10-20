@@ -2,8 +2,6 @@
 This file is going to run the main code. Basically every function will be called from either lucapiece or lucaboard.
 The main code therefore will be written as shortly as possible.
 '''
-"hello"
-
 
 #Import the libraries
 import pygame
@@ -95,7 +93,7 @@ def main():
                     gs.return_move()
 
                 if event.key == pygame.K_p:
-                    #Reset the Game State if wanted, else continue
+                    #Restart the game if wanted, else continue
                     game_paused = True
                     while game_paused:
                         DISPLAY_SCREEN.blit(Game_paused_text, Game_paused_rect)
@@ -105,11 +103,10 @@ def main():
                                 # Player wants to play on
                                 if event.key == pygame.K_c:
                                     game_paused = False
-                                #Player wants to quit
+                                #Player wants to restart
                                 if event.key == pygame.K_r:
                                     gs.restart_game()
                                     game_paused = False
-
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 #Store x as col, y as row
@@ -141,15 +138,6 @@ def main():
                         #Execute a move if possible
                         move = Move(player_move_destination[0], player_move_destination[1], gs.board)
                         gs.move_piece(move)
-
-
-                #gs.get_valid_moves([wx, wy], [bx, by])
-
-
-
-
-                print(player_move_destination)
-                print(len(player_move_destination))
 
             gs.is_king_in_check()
 
@@ -187,10 +175,8 @@ def main():
 
         #Blit the scaled images of the pieces on the display_screen
         gs.draw_pieces()
-        print(bk.BlackInCheck)
 
         if bk.BlackInCheck:
-            print("OOOOOOOOOOOOKKKKKKKKKKKKKKKKKKKKKK")
             bx, by = gs.king_coordinates_black()
             gs.black_in_check(bx, by)
         if wk.WhiteInCheck:

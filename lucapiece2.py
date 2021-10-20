@@ -14,7 +14,6 @@ SQUARE = WIDTH//8 or HEIGHT//8
 #Initialize pygame
 pygame.init()
 
-
 #Set a display screen
 DISPLAY_SCREEN = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Luca de Pietro Chess Game")
@@ -40,9 +39,6 @@ class Piece:
         self.type = type
         self.image = image
         self.selected = False
-
-
-
 
     def select_piece(self, click): #The click essentially will give us the piece's location
         if self.selected:
@@ -207,6 +203,7 @@ class Knight(Piece):
 
 class Bishop(Piece):
 
+    #With inspirations from Tech with Tim's video: 24 Hour Coding Livestream - Creating an Online Chess Game With Python
     def possible_moves(self, click, board):
         color = self.color
         col = click[0]
@@ -278,11 +275,7 @@ class Bishop(Piece):
 
         return possible_moves_list
 
-
-
-
 class Queen(Piece):
-
 
     def possible_moves(self, click, board):
         color = self.color
@@ -406,14 +399,12 @@ class Queen(Piece):
 
         return possible_moves_list
 
-
-
 class King(Piece):
 
     def __init__(self, color, type, image):
         super().__init__(color, type, image)
-        self.WhiteInCheck = False
         self.BlackInCheck = False
+        self.WhiteInCheck = False
 
     def possible_moves(self, click, board):
         col = click[0]
@@ -513,89 +504,6 @@ class King(Piece):
                             possible_moves_list.append([col, row - 1])
                 if board[row - 1][col] is None:
                     possible_moves_list.append([col, row - 1])
-
-        '''
-        #Go up
-        if row > 0:
-            if board[row - 1][col] != None:
-                if board[row][col] != None:
-                    if board[row - 1][col].color != board[row][col].color:
-                        possible_moves_list.append([col, row - 1])
-            if board[row - 1][col] == None:
-                possible_moves_list.append([col, row - 1])
-
-        #Go up left
-        if row > 0 and col > 0:
-            if board[row - 1][col - 1] != None:
-                if board[row][col] != None:
-                    if board[row - 1][col - 1].color != board[row][col].color:
-                        possible_moves_list.append([col - 1, row - 1])
-            if board[row - 1][col - 1] == None:
-                possible_moves_list.append([col - 1, row - 1])
-
-        #Go left
-        if col > 0:
-            if board[row][col - 1] != None:
-                if board[row][col] != None:
-                    if board[row][col - 1].color != board[row][col].color:
-                        possible_moves_list.append([col - 1, row])
-            if board[row][col - 1] == None:
-                possible_moves_list.append([col - 1, row])
-
-        #Go left down
-        if row < 7 and col > 0:
-            if board[row + 1][col - 1] != None:
-                if board[row][col] != None:
-                    if board[row + 1][col - 1].color != board[row][col].color:
-                        possible_moves_list.append([col - 1, row + 1])
-            if board[row + 1][col - 1] == None:
-                possible_moves_list.append([col - 1, row + 1])
-
-        #Go down
-        if row < 7:
-            if board[row + 1][col] != None:
-                if board[row][col] != None:
-                    if board[row + 1][col].color != board[row][col].color:
-                        possible_moves_list.append([col, row + 1])
-            if board[row + 1][col] == None:
-                possible_moves_list.append([col, row + 1])
-
-        #Go down right
-        if row < 7 and col < 7:
-            if board[row + 1][col + 1] != None:
-                if board[row][col] != None:
-                    if board[row + 1][col + 1].color != board[row][col].color:
-                        possible_moves_list.append([col + 1, row + 1])
-            if board[row + 1][col + 1] == None:
-                possible_moves_list.append([col + 1, row + 1])
-
-        #Go right
-        if col < 7:
-            if board[row][col + 1] != None:
-                if board[row][col] != None:
-                    if board[row][col + 1].color != board[row][col].color:
-                        possible_moves_list.append([col + 1, row])
-            if board[row][col + 1] == None:
-                possible_moves_list.append([col + 1, row])
-
-        #Go right up
-        if row > 0 and col < 7:
-            if board[row - 1][col + 1] != None:
-                if board[row][col] != None:
-                    if board[row - 1][col + 1].color != board[row][col].color:
-                        possible_moves_list.append([col + 1, row - 1])
-            if board[row - 1][col + 1] == None:
-                possible_moves_list.append([col + 1, row - 1])
-
-        return possible_moves_list
-        '''
-
-
-
-
-
-
-
 
 class Pawn(Piece):
 
