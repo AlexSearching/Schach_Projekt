@@ -2,6 +2,8 @@
 This file is going to run the main code. Basically every function will be called from either lucapiece or lucaboard.
 The main code therefore will be written as shortly as possible.
 '''
+"hello"
+
 
 #Import the libraries
 import pygame
