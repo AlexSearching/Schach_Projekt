@@ -47,8 +47,11 @@ BLUE = (50, 255, 255)
 BLACK = (0, 0, 0)
 
 #Chess Sounds
-moving_sound = pygame.mixer.Sound("Chess_move.wav")
-alert_sound = pygame.mixer.Sound("Chess_alert.wav")
+moving_sound = pygame.mixer.Sound("Chess_move.wav") #Downloaded from https://freesound.org/people/mh2o/sounds/351518/
+alert_sound = pygame.mixer.Sound("Chess_alert.wav") #Download from https://freesound.org/people/JustinBW/sounds/80921/
+capture_sound = pygame.mixer.Sound("Capture_sound2.wav") #Download from https://github.com/ornicar/lila/blob/master/public/sound/lisp/Capture.mp3
+castling_sound = pygame.mixer.Sound("Castling_sound.mp3") #Download from https://github.com/ornicar/lila/blob/master/public/sound/lisp/Castles.mp3
+defeat_sound = pygame.mixer.Sound("Defeat_sound.mp3") #Download from https://github.com/ornicar/lila/blob/master/public/sound/lisp/Defeat.mp3
 
 #The color of the dark squares is optional. Thus the user can change it.
 def draw_board(OPTIONAL):
@@ -185,8 +188,8 @@ class GameState():
 
                     # Generate all possible moves for white
                     if self.board[i][j].color == "w":
-                        possible_moves_b = self.board[i][j].possible_moves((j, i), self.board)
-                        if [self.black_king_start[0], self.black_king_start[1]] in possible_moves_b:
+                        possible_moves_w = self.board[i][j].possible_moves((j, i), self.board)
+                        if [self.black_king_start[0], self.black_king_start[1]] in possible_moves_w:
                             if self.board[self.black_king_start[1]][self.black_king_start[0]] is not None:
                                 self.board[self.black_king_start[1]][self.white_king_start[0]].BlackInCheck = True
                         else:
@@ -273,10 +276,12 @@ class GameState():
                             # Black King is captured
                             if self.board[move.endSqRow][move.endSqCol] == bk:
                                 self.GameOverB = True
+                                defeat_sound.play()
+
                             #Other Pieces are captured
                             self.board[move.stSqRow][move.stSqCol] = None
                             self.board[move.endSqRow][move.endSqCol] = move.pieceMoved
-                            moving_sound.play()
+                            capture_sound.play()
                             self.move_list.append(move)
                             self.whiteToMove = not self.whiteToMove
 
@@ -291,6 +296,7 @@ class GameState():
                                 #Move the king
                                 self.board[7][6] = wk
                                 self.board[move.stSqRow][move.stSqCol] = None
+                                castling_sound.play()
                                 #Move the rook
                                 self.board[7][5] = wr
                                 self.board[7][7] = None
@@ -301,12 +307,11 @@ class GameState():
                                 #Move the king
                                 self.board[7][2] = wk
                                 self.board[move.stSqRow][move.stSqCol] = None
+                                castling_sound.play()
                                 #Move the rook
                                 self.board[7][3] = wr
                                 self.board[7][0] = None
                                 self.whiteToMove = not self.whiteToMove
-
-
 
                     if [move.endSqCol, move.endSqRow] in possible_moves:
                         self.board[move.stSqRow][move.stSqCol] = None
@@ -349,10 +354,12 @@ class GameState():
                             # Whtie King is captured
                             if self.board[move.endSqRow][move.endSqCol] == wk:
                                 self.GameOverW = True
+                                defeat_sound.play()
+
                             #Other pieces are captured
                             self.board[move.stSqRow][move.stSqCol] = None
                             self.board[move.endSqRow][move.endSqCol] = move.pieceMoved
-                            moving_sound.play()
+                            capture_sound.play()
                             self.move_list.append(move)
                             self.whiteToMove = True
 
@@ -365,6 +372,7 @@ class GameState():
                                 #Move the king
                                 self.board[0][6] = bk
                                 self.board[move.stSqRow][move.stSqCol] = None
+                                castling_sound.play()
                                 #Move the rook
                                 self.board[0][5] = br
                                 self.board[0][7] = None
@@ -375,6 +383,7 @@ class GameState():
                                 # Move the king
                                 self.board[0][2] = bk
                                 self.board[move.stSqRow][move.stSqCol] = None
+                                castling_sound.play()
                                 # Move the rook
                                 self.board[0][3] = br
                                 self.board[0][0] = None

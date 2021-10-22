@@ -140,11 +140,14 @@ def main():
                         gs.move_piece(move)
 
             gs.is_king_in_check()
+            print(gs.black_king_start)
 
-            #If the black king is captured, restart the game if wanted
+            #If the black king is captured, restart the game if wanted; else quit
             while gs.GameOverB:
+                #Blit all the texts
                 DISPLAY_SCREEN.blit(Game_over_text_w, Game_over_text_w_rect)
                 DISPLAY_SCREEN.blit(Restart_text, Restart_rect)
+                #Update the display to let the user see
                 pygame.display.update()
                 for event in pygame.event.get():
                     if event.type == pygame.KEYDOWN:
@@ -156,8 +159,10 @@ def main():
 
             # If the white king is captured, restart the game if wanted
             while gs.GameOverW:
+                #Blit all the texts
                 DISPLAY_SCREEN.blit(Game_over_text_b, Game_over_text_b_rect)
                 DISPLAY_SCREEN.blit(Restart_text, Restart_rect)
+                #Update the display to let the user see
                 pygame.display.update()
                 for event in pygame.event.get():
                     if event.type == pygame.KEYDOWN:
