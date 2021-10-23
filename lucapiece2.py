@@ -504,6 +504,10 @@ class King(Piece):
                             possible_moves_list.append([col, row - 1])
                 if board[row - 1][col] is None:
                     possible_moves_list.append([col, row - 1])
+    '''            
+    def valid_moves_white(self, wking, board):
+        if self.WhiteInCheck:
+    '''
 
 class Pawn(Piece):
 
@@ -518,7 +522,7 @@ class Pawn(Piece):
 
         possible_moves_list  =[]
 
-        if row < 7 and color == "w":
+        if row < 7 and row > 0 and color == "w":
             if board[row-1][col] is None:
                 possible_moves_list.append([col, row - 1])
                 if row == 6 and board[row - 2][col] is None:
@@ -534,7 +538,7 @@ class Pawn(Piece):
                         possible_moves_list.append([col - 1, row - 1])
 
 
-        if row > 0 and color == "b":
+        if row > 0 and row < 7 and color == "b":
 
             if board[row+1][col] is None:
                 possible_moves_list.append([col, row +1])
@@ -571,7 +575,7 @@ wkn = Knight("w", "knight", "White_Knight.png")
 wb = Bishop("w", "bishop", "White_Bishop.png")
 wq = Queen("w", "queen", "White_Queen.png")
 wk = King("w", "king", "White_King.png")
-wp = Pawn("w", "paw", "White_Pawn.png")
+wp = Pawn("w", "pawn", "White_Pawn.png")
 
 
 

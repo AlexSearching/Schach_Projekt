@@ -44,6 +44,9 @@ YELLOW = (204, 204, 0)
 BLUE = (50, 255, 255)
 BLACK = (0, 0, 0)
 
+#Sounds
+alert_sound = pygame.mixer.Sound("Chess_alert.wav") #Download from https://freesound.org/people/JustinBW/sounds/80921/
+
 #Set Text for when the game is paused or over
 font = pygame.font.SysFont("consolas",28)
 
@@ -139,8 +142,10 @@ def main():
                         move = Move(player_move_destination[0], player_move_destination[1], gs.board)
                         gs.move_piece(move)
 
-            gs.is_king_in_check()
-            print(gs.black_king_start)
+            #Look for check moves
+            gs.threat_moves_black()
+            gs.threat_moves_white()
+            gs.king_in_check()
 
             #If the black king is captured, restart the game if wanted; else quit
             while gs.GameOverB:

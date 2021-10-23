@@ -113,8 +113,6 @@ class GameState():
         self.whiteToMove = True
         self.white_king_start = [4,7]
         self.black_king_start = [4,0]
-        self.inCheck = False
-        self.inPin = False
         self.GameOverW = False
         self.GameOverB = False
         self.CastleShortW = False
@@ -135,11 +133,10 @@ class GameState():
                     list.append(click)
 
     def check_for_doubleclicks(self,click, list):
-
         if len(list) == 2:
-            if self.board[list[0][1]][list[0][0]] != None:
+            if self.board[list[0][1]][list[0][0]] is not None:
                 possible_moves = self.board[list[0][1]][list[0][0]].possible_moves((list[0][0], list[0][1]), self.board)
-                if self.board[click[1]][click[0]] != None:
+                if self.board[click[1]][click[0]] is not None:
                     #Are pieces with the same color clicked, clear list and append the new click
                     if self.board[list[1][1]][list[1][0]].color == self.board[list[0][1]][list[0][0]].color:
                         list.clear()
@@ -158,7 +155,7 @@ class GameState():
         #White Kings coordinates
         for i in range(8):
             for j in range(8):
-                if self.board[i][j] != None:
+                if self.board[i][j] is not None:
                     if self.board[i][j] == wk:
                         wking_coordinates = [j, i]
                         return wking_coordinates
@@ -167,34 +164,66 @@ class GameState():
         #Black Kings coordinates
         for i in range(8):
             for j in range(8):
-                if self.board[i][j] != None:
+                if self.board[i][j] is not None:
                     if self.board[i][j] == bk:
                         bking_coordinates = [j, i]
                         return bking_coordinates
 
-    def is_king_in_check(self):
-        for i in range(8): #i for row
-            for j in range(8): #j for col
+    def threat_moves_black(self):
+        #Create all possible moves for black
+        possible_threat_moves_black = []
+        for i in range(8):
+            for j in range(8):
                 if self.board[i][j] is not None:
-                    #Generate all possible moves for black
                     if self.board[i][j].color == "b":
                         possible_moves_b = self.board[i][j].possible_moves((j, i), self.board)
-                        if [self.white_king_start[0], self.white_king_start[1]] in possible_moves_b:
-                            if self.board[self.white_king_start[1]][self.white_king_start[0]] is not None:
-                                self.board[self.white_king_start[1]][self.white_king_start[0]].WhiteInCheck = True
-                        else:
-                            if self.board[self.white_king_start[1]][self.white_king_start[0]] is not None:
-                                self.board[self.white_king_start[1]][self.white_king_start[0]].WhiteInCheck = False
+                        for move in possible_moves_b:
+                            possible_threat_moves_black.append(move)
+        return possible_threat_moves_black
 
-                    # Generate all possible moves for white
+    def threat_moves_white(self):
+        #Create all possible moves for white
+        possible_threat_moves_white = []
+        for i in range(8):
+            for j in range(8):
+                if self.board[i][j] is not None:
                     if self.board[i][j].color == "w":
                         possible_moves_w = self.board[i][j].possible_moves((j, i), self.board)
-                        if [self.black_king_start[0], self.black_king_start[1]] in possible_moves_w:
-                            if self.board[self.black_king_start[1]][self.black_king_start[0]] is not None:
-                                self.board[self.black_king_start[1]][self.white_king_start[0]].BlackInCheck = True
-                        else:
-                            if self.board[self.black_king_start[1]][self.black_king_start[0]] is not None:
-                                self.board[self.black_king_start[1]][self.black_king_start[0]].BlackInCheck = False
+                        for move in possible_moves_w:
+                            possible_threat_moves_white.append(move)
+        return possible_threat_moves_white
+
+    def king_in_check(self):
+        #If the white king is in one of the possible moves of black, he is in check
+        danger_moves_b = self.threat_moves_black()
+        if [self.white_king_start[0],self.white_king_start[1]] in danger_moves_b:
+            wk.WhiteInCheck = True
+            self.CastleShortW = False
+            self.CastleLongW = False
+        else:
+            wk.WhiteInCheck = False
+
+        #If the white king is in one of the possible moves of black, he is in check
+        danger_moves_w = self.threat_moves_white()
+        if [self.black_king_start[0], self.black_king_start[1]] in danger_moves_w:
+            bk.BlackInCheck = True
+            self.CastleShortB = False
+            self.CastleLongB = False
+        else:
+            bk.BlackInCheck = False
+
+    def remove_king_moves(self):
+        if wk.WhiteInCheck:
+            king_row = self.white_king_start[1]
+            king_col = self.white_king_start[0]
+            enemy_moves = self.threat_moves_black()
+            king_moves = self.board[king_row][king_col].possible_moves((king_col, king_row), self.board)
+            for moves in king_moves:
+                for e_moves in enemy_moves:
+                    if [moves[0], moves[1]] == [e_moves[0], e_moves[1]]:
+                        print([moves[0], moves[1]])
+                        king_moves.remove([moves[0], moves[1]])
+                        print(king_moves)
 
     def white_in_check(self,wx,wy):
         surface = pygame.Surface((SQUARE, SQUARE))
@@ -249,7 +278,8 @@ class GameState():
                                                                                    self.board)
             # A white piece is being clicked
             if self.board[move.stSqRow][move.stSqCol].color == "w":
-                #Check if either the king or rook has moved once, then castling is not possible anymore
+
+                 #Check if either the king or rook has moved once, then castling is not possible anymore
                 if self.board[move.stSqRow][move.stSqCol] == wk:
                     self.white_king_start = [move.endSqCol, move.endSqRow]
                     if [move.endSqRow,move.endSqCol] != [7,6]:
@@ -284,8 +314,6 @@ class GameState():
                             capture_sound.play()
                             self.move_list.append(move)
                             self.whiteToMove = not self.whiteToMove
-
-
 
                 #A square without a piece on it is clicked
                 if self.board[move.endSqRow][move.endSqCol] is None:
@@ -327,7 +355,7 @@ class GameState():
             possible_moves = self.board[move.stSqRow][move.stSqCol].possible_moves((move.stSqCol, move.stSqRow),
                                                                            self.board)
             if self.board[move.stSqRow][move.stSqCol].color == "b":
-                # Check if either the king or rook has moved once, then castling is not possible anymore
+                #Check if either the king or rook has moved once, then castling is not possible anymore
                 if self.board[move.stSqRow][move.stSqCol] == bk:
                     self.black_king_start = [move.endSqCol, move.endSqRow]
                     if [move.endSqRow, move.endSqCol] != [0, 6]:
@@ -430,8 +458,6 @@ class GameState():
         self.whiteToMove = True
         self.white_king_start = [4, 7]
         self.black_king_start = [4, 0]
-        self.inCheck = False
-        self.inPin = False
         self.GameOverW = False
         self.GameOverB = False
         self.CastleShortW = False
