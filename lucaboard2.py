@@ -53,7 +53,7 @@ capture_sound = pygame.mixer.Sound("Capture_sound2.wav") #Download from https://
 castling_sound = pygame.mixer.Sound("Castling_sound.mp3") #Download from https://github.com/ornicar/lila/blob/master/public/sound/lisp/Castles.mp3
 defeat_sound = pygame.mixer.Sound("Defeat_sound.mp3") #Download from https://github.com/ornicar/lila/blob/master/public/sound/lisp/Defeat.mp3
 
-#The color of the dark squares is optional. Thus the user can change it.
+#The color of the dark squares is optional, thus the user can change it where the function is executed (lucamain2.py)
 def draw_board(OPTIONAL):
     for i in range(8):
         for j in range(8):
@@ -122,10 +122,12 @@ class GameState():
 
     def check_for_nonesquare(self, click, list):
         if len(list) == 1:
-            if self.board[click[1]][click[0]] is None: #Is a none square clicked before a piece?
+            # Is a none square clicked before a piece?
+            if self.board[click[1]][click[0]] is None:
                 list.clear()
         if len(list) == 3:
-            if self.board[list[2][1]][list[2][0]] is None: #Is a none square clicked after a piece has moved?
+            # Is a none square clicked after a piece has moved?
+            if self.board[list[2][1]][list[2][0]] is None:
                 list.clear()
             if len(list) != 0:
                 if self.board[list[2][1]][list[2][0]] is not None:
@@ -424,14 +426,6 @@ class GameState():
                         self.move_list.append(move)
                         self.whiteToMove = True
 
-    #With inspirations from Eddie Sharick's video: Chess Engine in Python - Part 3 - Undo moves, start generating valid chess moves
-    def return_move(self):
-        if len(self.move_list) != 0:
-            move = self.move_list.pop()
-            self.board[move.stSqRow][move.stSqCol] = move.pieceMoved
-            self.board[move.endSqRow][move.endSqCol] = move.pieceCaptured
-            self.whiteToMove = not self.whiteToMove
-
     def draw_pieces(self):
         for j in range(8): # j for row
             for i in range(8): # i for col
@@ -490,7 +484,7 @@ The move class will save the row and column values of each added sqaure in the p
 an simple usage of the different start and end squares of each move. 
 '''
 
-#With inspirations from Eddie Sharick's video: Chess Engine in Python - Part 2 - Moving the pieces
+#With inspirations from Eddie Sharick's video: Chess Engine in Python - Part 2 - Moving the pieces (https://www.youtube.com/watch?v=o24J3WcBGLg&t=1765s&ab_channel=EddieSharick)
 class Move():
     def __init__(self, start_square, end_square, board):
         self.stSqCol = start_square[0]

@@ -91,10 +91,7 @@ def main():
                 #Exit the game
                 running = False
             if event.type == pygame.KEYDOWN:
-                #Undo a move
-                if event.key == pygame.K_LEFT:
-                    gs.return_move()
-
+                #Pause the game
                 if event.key == pygame.K_p:
                     #Restart the game if wanted, else continue
                     game_paused = True
@@ -124,7 +121,12 @@ def main():
                     player_move_destination.append(clicked_square)
                     gs.check_for_castling()
 
-                #The players clicks must be handled properly for a fluent game
+                '''
+                The players clicks must be handled properly for a fluent game. Therefore the following if statements
+                will execute the two functions check_for_nonesquare() and check_for_doubleclicks() to avoid unwanted 
+                addition of clicks to the player_move_destination list.
+                '''
+
                 if len(player_move_destination) == 1:
                     #If a None square is clicked before a piece, it is not of interest
                     gs.check_for_nonesquare(clicked_square, player_move_destination)
@@ -142,9 +144,10 @@ def main():
                         move = Move(player_move_destination[0], player_move_destination[1], gs.board)
                         gs.move_piece(move)
 
-            #Look for check moves
+            #Look at all the possible moves for both pieces and then look if the king's coordinates are in them
             gs.threat_moves_black()
             gs.threat_moves_white()
+            #Return the value True to self.WhiteInCheck/self.BlackInCheck in the King(Piece) Class if the king is in check
             gs.king_in_check()
 
             #If the black king is captured, restart the game if wanted; else quit
@@ -162,7 +165,7 @@ def main():
                         running = False
                         gs.GameOverB = False
 
-            # If the white king is captured, restart the game if wanted
+            #If the white king is captured, restart the game if wanted
             while gs.GameOverW:
                 #Blit all the texts
                 DISPLAY_SCREEN.blit(Game_over_text_b, Game_over_text_b_rect)
@@ -186,13 +189,17 @@ def main():
         #Blit the scaled images of the pieces on the display_screen
         gs.draw_pieces()
 
+        #Check if the black king is in check
         if bk.BlackInCheck:
+            #Get the black king's coordinates
             bx, by = gs.king_coordinates_black()
+            #If the king's coordinates are in the possible moves of the enemy, alert the player by drawing him red
             gs.black_in_check(bx, by)
         if wk.WhiteInCheck:
+            # Get the black king's coordinates
             wx, wy = gs.king_coordinates_white()
+            # If the king's coordinates are in the possible moves of the enemy, alert the player by drawing him red
             gs.white_in_check(wx,wy)
-
 
         #A None square will never be selected
         if len(player_move_destination) > 0:

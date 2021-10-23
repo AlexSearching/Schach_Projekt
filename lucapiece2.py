@@ -203,7 +203,7 @@ class Knight(Piece):
 
 class Bishop(Piece):
 
-    #With inspirations from Tech with Tim's video: 24 Hour Coding Livestream - Creating an Online Chess Game With Python
+    #With inspirations from Tech with Tim's video: 24 Hour Coding Livestream - Creating an Online Chess Game With Python (https://www.youtube.com/watch?v=HvjsMrR51lg&t=25694s&ab_channel=TechWithTim)
     def possible_moves(self, click, board):
         color = self.color
         col = click[0]
