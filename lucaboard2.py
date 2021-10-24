@@ -119,6 +119,8 @@ class GameState():
         self.CastleShortB = False
         self.CastleLongW = False
         self.CastleLongB = False
+        self.king_movedW = False
+        self.king_movedB = False
 
     def check_for_nonesquare(self, click, list):
         if len(list) == 1:
@@ -220,12 +222,24 @@ class GameState():
             king_col = self.white_king_start[0]
             enemy_moves = self.threat_moves_black()
             king_moves = self.board[king_row][king_col].possible_moves((king_col, king_row), self.board)
+
+            #If a move from the king is in the possible enemy moves, remove it
             for moves in king_moves:
                 for e_moves in enemy_moves:
                     if [moves[0], moves[1]] == [e_moves[0], e_moves[1]]:
-                        print([moves[0], moves[1]])
                         king_moves.remove([moves[0], moves[1]])
-                        print(king_moves)
+
+        if bk.BlackInCheck:
+            king_row = self.black_king_start[1]
+            king_col = self.black_king_start[0]
+            enemy_moves = self.threat_moves_white()
+            king_moves = self.board[king_row][king_col].possible_moves((king_col, king_row), self.board)
+
+            # If a move from the king is in the possible enemy moves, remove it
+            for moves in king_moves:
+                for e_moves in enemy_moves:
+                    if [moves[0], moves[1]] == [e_moves[0], e_moves[1]]:
+                        king_moves.remove([moves[0], moves[1]])
 
     def white_in_check(self,wx,wy):
         surface = pygame.Surface((SQUARE, SQUARE))
@@ -247,24 +261,52 @@ class GameState():
             for i in range(8):
                 if self.board[j][i] is not None:
                     if self.board[j][i] == wk:
-                        #Check for short castling
+                        enemy_moves = self.threat_moves_black()
+                        # If the king is in check, castling is not possible
+                        if self.king_movedW:
+                            self.CastleShortW = False
+                            self.CastleLongW = False
+
+                        # Check for short castling
                         if self.board[j][5] is None and self.board[j][6] is None:
-                            self.CastleShortW = True
-                        #Check for long castling
+                            if [4, 7] or [5, 7] or [6, 7] in enemy_moves:
+                                self.CastleShortW = False
+                            # If the castle squares are in the enemy's moves, castling not possible
+                            if [4, 7] not in enemy_moves and [5, 7] not in enemy_moves and [6, 7] not in enemy_moves:
+                                self.CastleShortW = True
+                        # Check for long castling
                         if self.board[j][1] is None and self.board[j][2] is None and self.board[j][3] is None:
-                            self.CastleLongW = True
+                            if [1, 7] or [2, 7] or [3, 7] or [4, 7] in enemy_moves:
+                                self.CastleLongW = False
+                            if [1, 7] not in enemy_moves and [2, 7] not in enemy_moves and [3, 7] not in enemy_moves and [4, 7] not in enemy_moves:
+                                self.CastleLongW = True
 
         #Check for the black king
         for j in range(8):
             for i in range(8):
                 if self.board[j][i] is not None:
                     if self.board[j][i] == bk:
-                        #Check for short castling
+                        enemy_moves = self.threat_moves_white()
+                        # If the king is in check, castling is not possible
+                        if self.king_movedB:
+                            self.CastleShortB = False
+                            self.CastleLongB = False
+
+                        # Check for short castling
                         if self.board[j][5] is None and self.board[j][6] is None:
-                            self.CastleShortB = True
-                        #Check for long castling
+                            if [4, 0] or [5, 0] or [6, 0] in enemy_moves:
+                                self.CastleShortB = False
+                            # If the castle squares are in the enemy's moves, castling not possible
+                            if [4, 0] not in enemy_moves and [5, 0] not in enemy_moves and [6, 0] not in enemy_moves:
+                                self.CastleShortB = True
+                        # Check for long castling
                         if self.board[j][1] is None and self.board[j][2] is None and self.board[j][3] is None:
-                            self.CastleLongB = True
+                            if [1, 0] or [2, 0] or [3, 0] or [4, 0] in enemy_moves:
+                                self.CastleLongB = False
+                            if [1, 0] not in enemy_moves and [2, 0] not in enemy_moves and [3,
+                                                                                            0] not in enemy_moves and [
+                                4, 0] not in enemy_moves:
+                                self.CastleLongB = True
 
     '''
     The move_piece function will set the rules for moving a piece . It takes the two squares of the move (start and end) 
@@ -281,15 +323,29 @@ class GameState():
             # A white piece is being clicked
             if self.board[move.stSqRow][move.stSqCol].color == "w":
 
-                 #Check if either the king or rook has moved once, then castling is not possible anymore
+                #Check if the white king is able to castle
                 if self.board[move.stSqRow][move.stSqCol] == wk:
+                    enemy_moves = self.threat_moves_black()
                     self.white_king_start = [move.endSqCol, move.endSqRow]
+                    #If the king is in check, castling is not possible
+                    if [self.white_king_start[0], self.white_king_start[1]] in enemy_moves:
+                        self.CastleShortW = False
+                        self.CastleLongW = False
+                    #King has moved, castling not possible
                     if [move.endSqRow,move.endSqCol] != [7,6]:
                         self.CastleShortW = False
+                        self.king_moved = True
                         moving_sound.play()
+                    # King has moved, castling not possible
                     if [move.endSqRow,move.endSqCol] != [7,2]:
                         self.CastleLongW = False
                         moving_sound.play()
+                    #If the castle squares are in the enemy's moves, castling not possible
+                    elif [7,6] in enemy_moves:
+                        self.CastleShortW = False
+                    elif [7,6] in enemy_moves:
+                        self.CastleLongW = False
+
 
                 #Pawn promotion white
                 if self.board[move.stSqRow][move.stSqCol] == wp:
@@ -347,7 +403,6 @@ class GameState():
                         self.board[move.stSqRow][move.stSqCol] = None
                         self.board[move.endSqRow][move.endSqCol] = move.pieceMoved
                         moving_sound.play()
-                        self.move_list.append(move)
                         self.whiteToMove = not self.whiteToMove
                         self.board[move.endSqRow][move.endSqCol].selected = False
 
@@ -357,15 +412,28 @@ class GameState():
             possible_moves = self.board[move.stSqRow][move.stSqCol].possible_moves((move.stSqCol, move.stSqRow),
                                                                            self.board)
             if self.board[move.stSqRow][move.stSqCol].color == "b":
-                #Check if either the king or rook has moved once, then castling is not possible anymore
+                # Check if the black king is able to castle
                 if self.board[move.stSqRow][move.stSqCol] == bk:
+                    enemy_moves = self.threat_moves_white()
                     self.black_king_start = [move.endSqCol, move.endSqRow]
+                    # If the king is in check, castling is not possible
+                    if [self.black_king_start[0], self.black_king_start[1]] in enemy_moves:
+                        self.CastleShortB = False
+                        self.CastleLongB = False
+                    # King has moved, castling not possible
                     if [move.endSqRow, move.endSqCol] != [0, 6]:
                         self.CastleShortB = False
                         moving_sound.play()
-                    if [move.endSqRow,move.endSqCol] != [0,2]:
+                    # King has moved, castling not possible
+                    if [move.endSqRow, move.endSqCol] != [0, 2]:
                         self.CastleLongB = False
                         moving_sound.play()
+                    # If the castle squares are in the enemy's moves, castling not possible
+                    elif [0, 6] in enemy_moves:
+                        self.CastleShortB = False
+                    elif [0, 2] in enemy_moves:
+                        self.CastleLongB = False
+
                 #Pawn promotion black
                 if self.board[move.stSqRow][move.stSqCol] == bp:
                     if [move.endSqCol, move.endSqRow] in possible_moves:
@@ -466,8 +534,13 @@ class GameState():
             if board[list[0][1]][list[0][0]].color == "w" and self.whiteToMove:
                 board[list[0][1]][list[0][0]].selected = True
                 board[list[0][1]][list[0][0]].select_piece(list[0])
-                board[list[0][1]][list[0][0]].possible_moves(list[0], self.board)
+                if board[list[0][1]][list[0][0]] != wk:
+                    board[list[0][1]][list[0][0]].possible_moves(list[0], self.board)
+                if board[list[0][1]][list[0][0]] == wk:
+                    self.remove_king_moves()
 
+
+                #Show the possible moves to the player if the piece is clicked and its that color's turn
                 for move in board[list[0][1]][list[0][0]].possible_moves(list[0], self.board):
                     pygame.draw.circle(DISPLAY_SCREEN, (200,200,203), (move[0] * 100 + 50, move[1] * 100 + 50), 25)
 

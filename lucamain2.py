@@ -80,6 +80,8 @@ Here the main code will run. It will handle the users inputs and makes the game 
 def main():
     clicked_square = () #Every click is stored in clicked_square as a tuple
     player_move_destination = []  #The clicked squares will be added into a list; two squares define a move
+    play_soundW = True
+    play_soundB = True
     running = True
     while running:
         # Set FPS
@@ -106,6 +108,7 @@ def main():
                                 #Player wants to restart
                                 if event.key == pygame.K_r:
                                     gs.restart_game()
+                                    play_sound = True
                                     game_paused = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -120,6 +123,7 @@ def main():
                     clicked_square = (x, y)
                     player_move_destination.append(clicked_square)
                     gs.check_for_castling()
+
 
                 '''
                 The players clicks must be handled properly for a fluent game. Therefore the following if statements
@@ -139,10 +143,12 @@ def main():
                     #If pieces of the same colors are clicked, clear the list and append the click
                     gs.check_for_doubleclicks(clicked_square, player_move_destination)
 
+
                     if len(player_move_destination) == 2:
                         #Execute a move if possible
                         move = Move(player_move_destination[0], player_move_destination[1], gs.board)
                         gs.move_piece(move)
+
 
             #Look at all the possible moves for both pieces and then look if the king's coordinates are in them
             gs.threat_moves_black()
@@ -191,15 +197,31 @@ def main():
 
         #Check if the black king is in check
         if bk.BlackInCheck:
+            #If the king is in check, alert the player
+            if play_soundB:
+                alert_sound.play()
+                play_soundB = False
             #Get the black king's coordinates
             bx, by = gs.king_coordinates_black()
             #If the king's coordinates are in the possible moves of the enemy, alert the player by drawing him red
             gs.black_in_check(bx, by)
+        #If the king is not in check, reset the Value of play_soundB
+        if bk.BlackInCheck == False:
+            play_soundB = True
+
+        #Check if the white king is in check
         if wk.WhiteInCheck:
-            # Get the black king's coordinates
+            # If the king is in check, alert the player
+            if play_soundW:
+                alert_sound.play()
+                play_soundW = False
+            #Get the black king's coordinates
             wx, wy = gs.king_coordinates_white()
-            # If the king's coordinates are in the possible moves of the enemy, alert the player by drawing him red
+            #If the king's coordinates are in the possible moves of the enemy, alert the player by drawing him red
             gs.white_in_check(wx,wy)
+        #If the king is not in check, reset the Value of play_soundB
+        if wk.WhiteInCheck == False:
+            play_soundW = True
 
         #A None square will never be selected
         if len(player_move_destination) > 0:

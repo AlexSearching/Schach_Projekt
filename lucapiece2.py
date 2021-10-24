@@ -4,15 +4,15 @@ This file is going to set the class for the pieces. It will set the information 
 
 import pygame
 
+#Initialize pygame
+pygame.init()
+
 #Set Dimensions
 WIDTH = 800
 HEIGHT = 800
 
 #Size of a square
 SQUARE = WIDTH//8 or HEIGHT//8
-
-#Initialize pygame
-pygame.init()
 
 #Set a display screen
 DISPLAY_SCREEN = pygame.display.set_mode((WIDTH,HEIGHT))
@@ -32,6 +32,7 @@ BLACK = (0, 0, 0)
 Every piece is defined by its color, its type and its image. The Piece parent class will give each piece its basic
 characteristics. It will mainly check if a piece is selected and will then mark the square around the piece for the user.
 '''
+
 
 class Piece:
     def __init__(self, color, type, image):
@@ -410,100 +411,83 @@ class King(Piece):
         col = click[0]
         row = click[1]
 
-
         possible_moves_list = []
 
-        if self.WhiteInCheck == False or self.BlackInCheck == False:
-            # Go up
-            if row > 0:
-                if board[row - 1][col] is not None:
-                    if board[row][col] is not None:
-                        if board[row - 1][col].color != board[row][col].color:
-                            possible_moves_list.append([col, row - 1])
-                if board[row - 1][col] is None:
-                    possible_moves_list.append([col, row - 1])
+        # Go up
+        if row > 0:
+            if board[row - 1][col] is not None:
+                if board[row][col] is not None:
+                    if board[row - 1][col].color != board[row][col].color:
+                        possible_moves_list.append([col, row - 1])
+            if board[row - 1][col] is None:
+                possible_moves_list.append([col, row - 1])
 
-            # Go up left
-            if row > 0 and col > 0:
-                if board[row - 1][col - 1] is not None:
-                    if board[row][col] is not None:
-                        if board[row - 1][col - 1].color != board[row][col].color:
+        # Go up left
+        if row > 0 and col > 0:
+            if board[row - 1][col - 1] is not None:
+                if board[row][col] is not None:
+                    if board[row - 1][col - 1].color != board[row][col].color:
                             possible_moves_list.append([col - 1, row - 1])
-                if board[row - 1][col - 1] is None:
-                    possible_moves_list.append([col - 1, row - 1])
+            if board[row - 1][col - 1] is None:
+                possible_moves_list.append([col - 1, row - 1])
 
-            # Go left
-            if col > 0:
-                if board[row][col - 1] is not None:
-                    if board[row][col] is not None:
-                        if board[row][col - 1].color != board[row][col].color:
-                            possible_moves_list.append([col - 1, row])
-                if board[row][col - 1] is None:
-                    possible_moves_list.append([col - 1, row])
+        # Go left
+        if col > 0:
+            if board[row][col - 1] is not None:
+                if board[row][col] is not None:
+                    if board[row][col - 1].color != board[row][col].color:
+                        possible_moves_list.append([col - 1, row])
+            if board[row][col - 1] is None:
+                possible_moves_list.append([col - 1, row])
 
-            # Go left down
-            if row < 7 and col > 0:
-                if board[row + 1][col - 1] is not None:
-                    if board[row][col] is not None:
-                        if board[row + 1][col - 1].color != board[row][col].color:
-                            possible_moves_list.append([col - 1, row + 1])
-                if board[row + 1][col - 1] is None:
-                    possible_moves_list.append([col - 1, row + 1])
+        # Go left down
+        if row < 7 and col > 0:
+            if board[row + 1][col - 1] is not None:
+                if board[row][col] is not None:
+                    if board[row + 1][col - 1].color != board[row][col].color:
+                        possible_moves_list.append([col - 1, row + 1])
+            if board[row + 1][col - 1] is None:
+                possible_moves_list.append([col - 1, row + 1])
 
-            # Go down
-            if row < 7:
-                if board[row + 1][col] is not None:
-                    if board[row][col] is not None:
-                        if board[row + 1][col].color != board[row][col].color:
-                            possible_moves_list.append([col, row + 1])
-                if board[row + 1][col] is None:
-                    possible_moves_list.append([col, row + 1])
+        # Go down
+        if row < 7:
+            if board[row + 1][col] is not None:
+                if board[row][col] is not None:
+                    if board[row + 1][col].color != board[row][col].color:
+                        possible_moves_list.append([col, row + 1])
+            if board[row + 1][col] is None:
+                possible_moves_list.append([col, row + 1])
 
-            # Go down right
-            if row < 7 and col < 7:
-                if board[row + 1][col + 1] is not None:
-                    if board[row][col] is not None:
-                        if board[row + 1][col + 1].color != board[row][col].color:
-                            possible_moves_list.append([col + 1, row + 1])
-                if board[row + 1][col + 1] is None:
-                    possible_moves_list.append([col + 1, row + 1])
+        # Go down right
+        if row < 7 and col < 7:
+            if board[row + 1][col + 1] is not None:
+                if board[row][col] is not None:
+                    if board[row + 1][col + 1].color != board[row][col].color:
+                        possible_moves_list.append([col + 1, row + 1])
+            if board[row + 1][col + 1] is None:
+                possible_moves_list.append([col + 1, row + 1])
 
-            # Go right
-            if col < 7:
-                if board[row][col + 1] is not None:
-                    if board[row][col] is not None:
-                        if board[row][col + 1].color != board[row][col].color:
-                            possible_moves_list.append([col + 1, row])
-                if board[row][col + 1] is None:
-                    possible_moves_list.append([col + 1, row])
+        # Go right
+        if col < 7:
+            if board[row][col + 1] is not None:
+                if board[row][col] is not None:
+                    if board[row][col + 1].color != board[row][col].color:
+                        possible_moves_list.append([col + 1, row])
+            if board[row][col + 1] is None:
+                possible_moves_list.append([col + 1, row])
 
-            # Go right up
-            if row > 0 and col < 7:
-                if board[row - 1][col + 1] is not None:
-                    if board[row][col] is not None:
-                        if board[row - 1][col + 1].color != board[row][col].color:
-                            possible_moves_list.append([col + 1, row - 1])
-                if board[row - 1][col + 1] is None:
-                    possible_moves_list.append([col + 1, row - 1])
+        # Go right up
+        if row > 0 and col < 7:
+            if board[row - 1][col + 1] is not None:
+                if board[row][col] is not None:
+                    if board[row - 1][col + 1].color != board[row][col].color:
+                        possible_moves_list.append([col + 1, row - 1])
+            if board[row - 1][col + 1] is None:
+                possible_moves_list.append([col + 1, row - 1])
 
-            return possible_moves_list
 
-        if self.WhiteInCheck:
-            for i in range(8):
-                for j in range(8):
-                    if board[j][i] is not None:
-                        if board[j][i].color == "b":
-                            possible_moves_b = board[j][i].possible_moves((i,j),board)
-                            print(possible_moves_b)
+        return possible_moves_list
 
-            # Go up
-            if row > 0:
-                if board[row - 1][col] is not None:
-                    if board[row][col] is not None:
-                        if board[row - 1][col].color != board[row][col].color:
-                            possible_moves_list.append([col, row - 1])
-                if board[row - 1][col] is None:
-                    possible_moves_list.append([col, row - 1])
     '''            
     def valid_moves_white(self, wking, board):
         if self.WhiteInCheck:
