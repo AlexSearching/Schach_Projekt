@@ -122,8 +122,7 @@ def main():
                 else:
                     clicked_square = (x, y)
                     player_move_destination.append(clicked_square)
-                    gs.check_for_castling()
-
+                    #gs.check_for_castling()
 
                 '''
                 The players clicks must be handled properly for a fluent game. Therefore the following if statements
@@ -149,11 +148,12 @@ def main():
                         move = Move(player_move_destination[0], player_move_destination[1], gs.board)
                         gs.move_piece(move)
 
-
-            #Look at all the possible moves for both pieces and then look if the king's coordinates are in them
+            #Always check if castling is possible
+            gs.check_for_castling()
+            #Look at all the possible moves for both pieces
             gs.threat_moves_black()
             gs.threat_moves_white()
-            #Return the value True to self.WhiteInCheck/self.BlackInCheck in the King(Piece) Class if the king is in check
+            #Return the value True to self.WhiteInCheck/self.BlackInCheck in the King(Piece) Class if king in check
             gs.king_in_check()
 
             #If the black king is captured, restart the game if wanted; else quit

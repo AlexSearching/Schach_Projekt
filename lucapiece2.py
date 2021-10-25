@@ -33,7 +33,6 @@ Every piece is defined by its color, its type and its image. The Piece parent cl
 characteristics. It will mainly check if a piece is selected and will then mark the square around the piece for the user.
 '''
 
-
 class Piece:
     def __init__(self, color, type, image):
         self.color = color
@@ -497,7 +496,7 @@ class Pawn(Piece):
 
     def __init__(self, color, type, image):
         super().__init__(color, type, image)
-        #self.promotion_possible = False
+        self.en_passant = False
 
     def possible_moves(self,click, board):
         color = self.color
@@ -520,7 +519,6 @@ class Pawn(Piece):
                 if board[row - 1][col - 1] is not None:
                     if board[row - 1][col - 1].color != "w":
                         possible_moves_list.append([col - 1, row - 1])
-
 
         if row > 0 and row < 7 and color == "b":
 

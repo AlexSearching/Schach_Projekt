@@ -1,3 +1,5 @@
+
+
 """
 This file is going to keep track of the current state of the board with its pieces on it in the GameState Class.
 It will also save every move made so that the Game afterwards can be looked at.
@@ -111,8 +113,6 @@ class GameState():
         ]
         self.move_list = []
         self.whiteToMove = True
-        self.white_king_start = [4,7]
-        self.black_king_start = [4,0]
         self.GameOverW = False
         self.GameOverB = False
         self.CastleShortW = False
@@ -198,48 +198,27 @@ class GameState():
         return possible_threat_moves_white
 
     def king_in_check(self):
-        #If the white king is in one of the possible moves of black, he is in check
-        danger_moves_b = self.threat_moves_black()
-        if [self.white_king_start[0],self.white_king_start[1]] in danger_moves_b:
-            wk.WhiteInCheck = True
-            self.CastleShortW = False
-            self.CastleLongW = False
-        else:
-            wk.WhiteInCheck = False
+        if self.king_coordinates_white() is not None:
+            col_wk, row_wk = self.king_coordinates_white()
+            # If the white king is in one of the possible moves of black, he is in check
+            danger_moves_b = self.threat_moves_black()
+            if [col_wk, row_wk] in danger_moves_b:
+                wk.WhiteInCheck = True
+                self.CastleShortW = False
+                self.CastleLongW = False
+            else:
+                wk.WhiteInCheck = False
 
-        #If the white king is in one of the possible moves of black, he is in check
-        danger_moves_w = self.threat_moves_white()
-        if [self.black_king_start[0], self.black_king_start[1]] in danger_moves_w:
-            bk.BlackInCheck = True
-            self.CastleShortB = False
-            self.CastleLongB = False
-        else:
-            bk.BlackInCheck = False
-
-    def remove_king_moves(self):
-        if wk.WhiteInCheck:
-            king_row = self.white_king_start[1]
-            king_col = self.white_king_start[0]
-            enemy_moves = self.threat_moves_black()
-            king_moves = self.board[king_row][king_col].possible_moves((king_col, king_row), self.board)
-
-            #If a move from the king is in the possible enemy moves, remove it
-            for moves in king_moves:
-                for e_moves in enemy_moves:
-                    if [moves[0], moves[1]] == [e_moves[0], e_moves[1]]:
-                        king_moves.remove([moves[0], moves[1]])
-
-        if bk.BlackInCheck:
-            king_row = self.black_king_start[1]
-            king_col = self.black_king_start[0]
-            enemy_moves = self.threat_moves_white()
-            king_moves = self.board[king_row][king_col].possible_moves((king_col, king_row), self.board)
-
-            # If a move from the king is in the possible enemy moves, remove it
-            for moves in king_moves:
-                for e_moves in enemy_moves:
-                    if [moves[0], moves[1]] == [e_moves[0], e_moves[1]]:
-                        king_moves.remove([moves[0], moves[1]])
+        if self.king_coordinates_black() is not None:
+            col_bk, row_bk = self.king_coordinates_black()
+            # If the black king is in one of the possible moves of white, he is in check
+            danger_moves_w = self.threat_moves_white()
+            if [col_bk, row_bk] in danger_moves_w:
+                bk.BlackInCheck = True
+                self.CastleShortB = False
+                self.CastleLongB = False
+            else:
+                bk.BlackInCheck = False
 
     def white_in_check(self,wx,wy):
         surface = pygame.Surface((SQUARE, SQUARE))
@@ -256,6 +235,7 @@ class GameState():
         DISPLAY_SCREEN.blit(surface, (bx * 100, by * 100))
 
     def check_for_castling(self):
+
         #Check for the white king
         for j in range(8):
             for i in range(8):
@@ -263,6 +243,10 @@ class GameState():
                     if self.board[j][i] == wk:
                         enemy_moves = self.threat_moves_black()
                         # If the king is in check, castling is not possible
+                        if [i,j] in enemy_moves:
+                            self.CastleShortW = False
+                            self.CastleLongW = False
+                        #If the king has moved, castling is not possible
                         if self.king_movedW:
                             self.CastleShortW = False
                             self.CastleLongW = False
@@ -272,7 +256,7 @@ class GameState():
                             if [4, 7] or [5, 7] or [6, 7] in enemy_moves:
                                 self.CastleShortW = False
                             # If the castle squares are in the enemy's moves, castling not possible
-                            if [4, 7] not in enemy_moves and [5, 7] not in enemy_moves and [6, 7] not in enemy_moves:
+                            if [4, 7] not in enemy_moves and [5, 7] not in enemy_moves and  [6, 7] not in enemy_moves:
                                 self.CastleShortW = True
                         # Check for long castling
                         if self.board[j][1] is None and self.board[j][2] is None and self.board[j][3] is None:
@@ -288,6 +272,11 @@ class GameState():
                     if self.board[j][i] == bk:
                         enemy_moves = self.threat_moves_white()
                         # If the king is in check, castling is not possible
+                        if [i, j] in enemy_moves:
+                            self.CastleShortB = False
+                            self.CastleLongB = False
+
+                        #If the king has moved, castling is not possible
                         if self.king_movedB:
                             self.CastleShortB = False
                             self.CastleLongB = False
@@ -317,35 +306,24 @@ class GameState():
     def move_piece(self, move):
 
         if self.board[move.stSqRow][move.stSqCol] is not None and self.whiteToMove:
-            #possible_moves generated from Piece Class at specific click location
+
+            #possible_moves are being generated from Piece Class at start location
             possible_moves = self.board[move.stSqRow][move.stSqCol].possible_moves((move.stSqCol, move.stSqRow),
                                                                                    self.board)
-            # A white piece is being clicked
+            #A white piece is being clicked
             if self.board[move.stSqRow][move.stSqCol].color == "w":
-
-                #Check if the white king is able to castle
+                #The king is clicked
                 if self.board[move.stSqRow][move.stSqCol] == wk:
-                    enemy_moves = self.threat_moves_black()
-                    self.white_king_start = [move.endSqCol, move.endSqRow]
-                    #If the king is in check, castling is not possible
-                    if [self.white_king_start[0], self.white_king_start[1]] in enemy_moves:
+                    #King has moved, short castling not possible
+                    if [move.endSqCol,move.endSqRow] != [6,7]:
                         self.CastleShortW = False
-                        self.CastleLongW = False
-                    #King has moved, castling not possible
-                    if [move.endSqRow,move.endSqCol] != [7,6]:
-                        self.CastleShortW = False
-                        self.king_moved = True
+                        self.king_movedW = True
                         moving_sound.play()
-                    # King has moved, castling not possible
-                    if [move.endSqRow,move.endSqCol] != [7,2]:
+                    #King has moved, long castling not possible
+                    if [move.endSqCol,move.endSqRow] != [2,7]:
                         self.CastleLongW = False
+                        self.king_movedW = True
                         moving_sound.play()
-                    #If the castle squares are in the enemy's moves, castling not possible
-                    elif [7,6] in enemy_moves:
-                        self.CastleShortW = False
-                    elif [7,6] in enemy_moves:
-                        self.CastleLongW = False
-
 
                 #Pawn promotion white
                 if self.board[move.stSqRow][move.stSqCol] == wp:
@@ -399,6 +377,12 @@ class GameState():
                                 self.board[7][0] = None
                                 self.whiteToMove = not self.whiteToMove
 
+                        #Get all the enemy moves to check if the king wants to move to an attacked square
+                        enemy_moves = self.threat_moves_black()
+                        if [move.endSqCol, move.endSqRow] in enemy_moves:
+                            #If that is the case, simply remove the king's possible moves for that specific square
+                            possible_moves = []
+
                     if [move.endSqCol, move.endSqRow] in possible_moves:
                         self.board[move.stSqRow][move.stSqCol] = None
                         self.board[move.endSqRow][move.endSqCol] = move.pieceMoved
@@ -412,14 +396,22 @@ class GameState():
             possible_moves = self.board[move.stSqRow][move.stSqCol].possible_moves((move.stSqCol, move.stSqRow),
                                                                            self.board)
             if self.board[move.stSqRow][move.stSqCol].color == "b":
-                # Check if the black king is able to castle
+
+
                 if self.board[move.stSqRow][move.stSqCol] == bk:
-                    enemy_moves = self.threat_moves_white()
-                    self.black_king_start = [move.endSqCol, move.endSqRow]
-                    # If the king is in check, castling is not possible
-                    if [self.black_king_start[0], self.black_king_start[1]] in enemy_moves:
-                        self.CastleShortB = False
-                        self.CastleLongB = False
+                    '''
+                    if self.board[move.endSqRow][move.endSqCol] is not None:
+                        primary = self.board[move.endSqRow][move.endSqCol]
+                        print(primary)
+                        if self.board[move.endSqRow][move.endSqCol].color != "b":
+                            enemy_moves = self.threat_moves_white()
+                            self.board[move.endSqRow][move.endSqCol] = None
+                            if [move.endSqCol, move.endSqRow] in enemy_moves:
+                                self.board[move.endSqRow][move.endSqCol] = primary
+                                print("how")
+                                possible_moves = []
+                    '''
+
                     # King has moved, castling not possible
                     if [move.endSqRow, move.endSqCol] != [0, 6]:
                         self.CastleShortB = False
@@ -428,11 +420,6 @@ class GameState():
                     if [move.endSqRow, move.endSqCol] != [0, 2]:
                         self.CastleLongB = False
                         moving_sound.play()
-                    # If the castle squares are in the enemy's moves, castling not possible
-                    elif [0, 6] in enemy_moves:
-                        self.CastleShortB = False
-                    elif [0, 2] in enemy_moves:
-                        self.CastleLongB = False
 
                 #Pawn promotion black
                 if self.board[move.stSqRow][move.stSqCol] == bp:
@@ -444,23 +431,19 @@ class GameState():
                             self.whiteToMove =  True
 
                 if self.board[move.endSqRow][move.endSqCol] is not None:
-                    #Piece which is not black is clicked
-                    if self.board[move.endSqRow][move.endSqCol].color != "b":
-                        if self.board[move.endSqRow][move.endSqCol].color == "b":
-                            self.whiteToMove = True
-                        if [move.endSqCol, move.endSqRow] in possible_moves:
-                            # Whtie King is captured
-                            if self.board[move.endSqRow][move.endSqCol] == wk:
-                                self.GameOverW = True
-                                defeat_sound.play()
 
-                            #Other pieces are captured
-                            self.board[move.stSqRow][move.stSqCol] = None
-                            self.board[move.endSqRow][move.endSqCol] = move.pieceMoved
-                            capture_sound.play()
-                            self.move_list.append(move)
-                            self.whiteToMove = True
+                    if [move.endSqCol, move.endSqRow] in possible_moves:
+                        # White King is captured
+                        if self.board[move.endSqRow][move.endSqCol] == wk:
+                            self.GameOverW = True
+                            defeat_sound.play()
 
+                        #Other pieces are captured
+                        self.board[move.stSqRow][move.stSqCol] = None
+                        self.board[move.endSqRow][move.endSqCol] = move.pieceMoved
+                        capture_sound.play()
+                        self.move_list.append(move)
+                        self.whiteToMove = True
 
                 if self.board[move.endSqRow][move.endSqCol] is None and not self.whiteToMove:
                     if self.board[move.stSqRow][move.stSqCol] == bk:
@@ -487,6 +470,12 @@ class GameState():
                                 self.board[0][0] = None
                                 self.whiteToMove = not self.whiteToMove
 
+                        # Get all the enemy moves to check if the king wants to move to an attacked square
+                        enemy_moves = self.threat_moves_white()
+                        if [move.endSqCol, move.endSqRow] in enemy_moves:
+                            # If that is the case, simply remove the king's possible moves for that specific square
+                            possible_moves = []
+
                     if [move.endSqCol, move.endSqRow] in possible_moves:
                         self.board[move.stSqRow][move.stSqCol] = None
                         self.board[move.endSqRow][move.endSqCol] = move.pieceMoved
@@ -504,7 +493,7 @@ class GameState():
                     #Blit the scaled images on the board
                     DISPLAY_SCREEN.blit(piece_scaled, pygame.Rect(i*SQUARE, j*SQUARE,SQUARE,SQUARE))
 
-    #When the game is restarted or over, simply reset the board
+    #When the game is restarted or over, simply reset the board with its values
     def restart_game(self):
         self.board = [
             [br, bkn, bb, bq, bk, bb, bkn, br],
@@ -518,14 +507,14 @@ class GameState():
         ]
         self.move_list = []
         self.whiteToMove = True
-        self.white_king_start = [4, 7]
-        self.black_king_start = [4, 0]
         self.GameOverW = False
         self.GameOverB = False
         self.CastleShortW = False
         self.CastleShortB = False
         self.CastleLongW = False
         self.CastleLongB = False
+        self.king_movedW = False
+        self.king_movedB = False
 
     #Select each piece by clicking on it to show its possible moves, if it is that piece's turn
     def select(self, list, board):
@@ -534,10 +523,14 @@ class GameState():
             if board[list[0][1]][list[0][0]].color == "w" and self.whiteToMove:
                 board[list[0][1]][list[0][0]].selected = True
                 board[list[0][1]][list[0][0]].select_piece(list[0])
+                '''
                 if board[list[0][1]][list[0][0]] != wk:
                     board[list[0][1]][list[0][0]].possible_moves(list[0], self.board)
                 if board[list[0][1]][list[0][0]] == wk:
-                    self.remove_king_moves()
+                    pass
+                    #self.remove_king_moves()
+                '''
+
 
 
                 #Show the possible moves to the player if the piece is clicked and its that color's turn
@@ -547,7 +540,7 @@ class GameState():
             if board[list[0][1]][list[0][0]].color == "b" and not self.whiteToMove:
                 board[list[0][1]][list[0][0]].selected = True
                 board[list[0][1]][list[0][0]].select_piece(list[0])
-                board[list[0][1]][list[0][0]].possible_moves(list[0], self.board)
+                #board[list[0][1]][list[0][0]].possible_moves(list[0], self.board)
 
                 for move in board[list[0][1]][list[0][0]].possible_moves(list[0], self.board):
                     pygame.draw.circle(DISPLAY_SCREEN, (200,200,203), (move[0] * 100 + 50, move[1] * 100 + 50), 25)
@@ -566,9 +559,6 @@ class Move():
         self.endSqRow = end_square[1]
         self.pieceMoved = board[self.stSqRow][self.stSqCol]
         self.pieceCaptured = board[self.endSqRow][self.endSqCol]
-
-
-
 
 
 
