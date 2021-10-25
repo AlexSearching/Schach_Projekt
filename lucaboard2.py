@@ -1,5 +1,4 @@
 
-
 """
 This file is going to keep track of the current state of the board with its pieces on it in the GameState Class.
 It will also save every move made so that the Game afterwards can be looked at.
@@ -220,6 +219,32 @@ class GameState():
             else:
                 bk.BlackInCheck = False
 
+    ''' Additional changes have been made on 25.10.2021; look line of Code 407-410 for white and  line of Code 500-503 for black
+    def remove_king_moves(self):
+        if wk.WhiteInCheck:
+            if self.king_coordinates_white() is not None:
+                col_wk, row_wk = self.king_coordinates_white()
+                enemy_moves = self.threat_moves_black()
+                if row_wk is not None and col_wk is not None:
+                    king_moves = self.board[row_wk][col_wk].possible_moves((col_wk, row_wk), self.board)
+                    # If a move from the king is in the possible enemy moves, remove it
+                    for moves in king_moves:
+                        for e_moves in enemy_moves:
+                            if [moves[0], moves[1]] == [e_moves[0], e_moves[1]]:
+                                king_moves.remove([moves[0], moves[1]])
+
+        if bk.BlackInCheck:
+            col_bk, row_bk = self.king_coordinates_white()
+            enemy_moves = self.threat_moves_white()
+            if row_bk is not None and col_bk is not None:
+                king_moves = self.board[row_bk][col_bk].possible_moves((row_bk, col_bk), self.board)
+                # If a move from the king is in the possible enemy moves, remove it
+                for moves in king_moves:
+                    for e_moves in enemy_moves:
+                        if [moves[0], moves[1]] == [e_moves[0], e_moves[1]]:
+                            king_moves.remove([moves[0], moves[1]])
+    '''
+
     def white_in_check(self,wx,wy):
         surface = pygame.Surface((SQUARE, SQUARE))
         # Choose the transparency
@@ -399,18 +424,6 @@ class GameState():
 
 
                 if self.board[move.stSqRow][move.stSqCol] == bk:
-                    '''
-                    if self.board[move.endSqRow][move.endSqCol] is not None:
-                        primary = self.board[move.endSqRow][move.endSqCol]
-                        print(primary)
-                        if self.board[move.endSqRow][move.endSqCol].color != "b":
-                            enemy_moves = self.threat_moves_white()
-                            self.board[move.endSqRow][move.endSqCol] = None
-                            if [move.endSqCol, move.endSqRow] in enemy_moves:
-                                self.board[move.endSqRow][move.endSqCol] = primary
-                                print("how")
-                                possible_moves = []
-                    '''
 
                     # King has moved, castling not possible
                     if [move.endSqRow, move.endSqCol] != [0, 6]:
@@ -519,19 +532,11 @@ class GameState():
     #Select each piece by clicking on it to show its possible moves, if it is that piece's turn
     def select(self, list, board):
 
+        #List will be the player_move_destination list to check which piece has been clicked
         if board[list[0][1]][list[0][0]] is not None: #Careful: Row and col in self.board are board[row][col]
             if board[list[0][1]][list[0][0]].color == "w" and self.whiteToMove:
                 board[list[0][1]][list[0][0]].selected = True
                 board[list[0][1]][list[0][0]].select_piece(list[0])
-                '''
-                if board[list[0][1]][list[0][0]] != wk:
-                    board[list[0][1]][list[0][0]].possible_moves(list[0], self.board)
-                if board[list[0][1]][list[0][0]] == wk:
-                    pass
-                    #self.remove_king_moves()
-                '''
-
-
 
                 #Show the possible moves to the player if the piece is clicked and its that color's turn
                 for move in board[list[0][1]][list[0][0]].possible_moves(list[0], self.board):
@@ -540,8 +545,8 @@ class GameState():
             if board[list[0][1]][list[0][0]].color == "b" and not self.whiteToMove:
                 board[list[0][1]][list[0][0]].selected = True
                 board[list[0][1]][list[0][0]].select_piece(list[0])
-                #board[list[0][1]][list[0][0]].possible_moves(list[0], self.board)
 
+                #Show the possible moves to the player if the piece is clicked and its that color's turn
                 for move in board[list[0][1]][list[0][0]].possible_moves(list[0], self.board):
                     pygame.draw.circle(DISPLAY_SCREEN, (200,200,203), (move[0] * 100 + 50, move[1] * 100 + 50), 25)
 
