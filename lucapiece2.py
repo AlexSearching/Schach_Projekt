@@ -549,7 +549,7 @@ bkn = Knight("b", "knight", "Black_Knight.png")
 bb = Bishop("b", "bishop", "Black_Bishop.png")
 bq = Queen("b", "queen", "Black_Queen.png")
 bk = King("b", "king", "Black_King.png")
-bp = Pawn("b", "pawn", "Black_pawn.png")
+bp = Pawn("b", "pawn", "Black_Pawn.png")
 
 #White pieces
 wr = Rook("w", "rook", "White_Rook.png")
